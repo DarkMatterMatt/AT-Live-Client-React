@@ -8,12 +8,13 @@ import { createMaterialBottomTabNavigator } from "@react-navigation/material-bot
 import MapScreen from "./nav-map/MapScreen"
 import RoutesScreen from "./nav-routes/RoutesScreen"
 import SettingsScreen from "./nav-settings/SettingsScreen"
+import RouteData from "./types/RouteData";
 
 const Tab = createMaterialBottomTabNavigator();
 
 export default function App() {
-    const [activeRoutes, setActiveRoutes] = useState([]);
-    const [inactiveRoutes, setInctiveRoutes] = useState([]);
+    const [activeRoutes, setActiveRoutes] = useState<RouteData[]>([]);
+    const [inactiveRoutes, setInctiveRoutes] = useState<RouteData[]>([]);
     return (
         <NavigationContainer>
             <Tab.Navigator

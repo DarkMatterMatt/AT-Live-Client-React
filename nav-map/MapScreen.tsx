@@ -3,7 +3,8 @@ import MapView from "react-native-maps";
 import { StyleSheet, View, Dimensions, Platform } from "react-native";
 import * as Location from "expo-location";
 import VehicleMarker from "./VehicleMarker"
-import Route from "../types/Route"
+import RouteData from "../types/RouteData"
+import Route from "./Route";
 
 const AUCKLAND_COORDS = {
     latitude: -37.028454,
@@ -13,7 +14,7 @@ const AUCKLAND_COORDS = {
 };
 
 interface MapScreenProps {
-    activeRoutes: Route[],
+    activeRoutes: RouteData[];
 }
 
 export default function MapScreen({ activeRoutes }: MapScreenProps) {
@@ -54,9 +55,7 @@ export default function MapScreen({ activeRoutes }: MapScreenProps) {
             onRegionChangeComplete={r => setRegion(r)}
             provider="google"
             followsUserLocation={true}>
-            {
-                activeRoutes.map(r => r.vehicles).flat().map(v => <VehicleMarker vehicle={v} />)
-            }
+            { activeRoutes.map(r => <Route key={r.shortName} route={r} />) }
         </MapView>
     );
 }
