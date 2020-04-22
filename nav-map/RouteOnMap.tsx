@@ -4,14 +4,15 @@ import VehicleMarker from "./VehicleMarker"
 import RouteData from "../types/RouteData"
 import { Polyline } from "react-native-maps";
 
-interface RouteProps {
+interface RouteOnMapProps {
     route: RouteData;
+    position: number;
 }
 
 const polylineWidth = 2.5;
 
-export default function Route({ route }: RouteProps) {
-    const baseZIndex = route.position * 10;
+export default function RouteOnMap({ route, position }: RouteOnMapProps) {
+    const baseZIndex = position * 4;
     const [line0, line1] = route.polylines;
 
     return (

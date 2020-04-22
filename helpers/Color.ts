@@ -199,6 +199,6 @@ function componentsToRgba(c: number[]) {
     return `rgba(${c.join(",")})`;
 }
 
-function colorToRgba(s: string, a?: number): string {
+export function colorToRgba(s: string, a?: number): string {
     return componentsToRgba(colorToComponents(s, a));
 }

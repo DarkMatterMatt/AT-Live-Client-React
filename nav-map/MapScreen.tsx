@@ -4,7 +4,7 @@ import { StyleSheet, View, Dimensions, Platform } from "react-native";
 import * as Location from "expo-location";
 import VehicleMarker from "./VehicleMarker"
 import RouteData from "../types/RouteData"
-import Route from "./Route";
+import RouteOnMap from "./RouteOnMap";
 
 const { width, height } = Dimensions.get("window");
 
@@ -63,7 +63,7 @@ export default function MapScreen({ activeRoutes }: MapScreenProps) {
             initialRegion={region}
             onRegionChangeComplete={r => setRegion(r)}
             provider="google">
-            { activeRoutes.map(r => <Route key={r.shortName} route={r} />) }
+            { activeRoutes.map((r, i) => <RouteOnMap key={r.shortName} route={r} position={i} />) }
         </MapView>
     );
 }
