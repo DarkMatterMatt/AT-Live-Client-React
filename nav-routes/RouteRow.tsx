@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { SlidersColorPicker } from 'react-native-color';
 import Touchable from "react-native-platform-touchable";
 import CrossIcon from "../common/CrossIcon";
@@ -21,15 +21,16 @@ interface RouteRowProps {
     route: RouteData;
     setColor?: (newColor: string) => void;
     remove?: () => void;
+    style?: StyleProp<ViewStyle>;
 }
 
-export default function RouteRow({ route, setColor, remove }: RouteRowProps) {
+export default function RouteRow({ route, setColor, remove, style }: RouteRowProps) {
     const [pickrVisible, setPickrVisible] = useState(false);
 
     const { shortName, color, type, longName, to, from } = route;
 
     return (<>
-        <View style={styles.row}>
+        <View style={[styles.row, style]}>
             <TransitIcon type={type} />
             <Text
                 style={styles.shortName}>
@@ -67,24 +68,23 @@ export default function RouteRow({ route, setColor, remove }: RouteRowProps) {
 
 const styles = StyleSheet.create({
     row: {
+        flex: 1,
         flexDirection: "row",
-        padding: 5,
-        flexShrink: 1,
     },
     shortName: {
+        marginLeft: 4,
         fontSize: 30,
         fontWeight: "bold",
-        marginLeft: 4,
     },
     toFrom: {
-        fontSize: 14,
         marginLeft: 8,
+        fontSize: 14,
     },
     pickrBtn: {
-        borderRadius: 4,
-        aspectRatio: 1,
         marginHorizontal: 3,
         height: "100%",
+        aspectRatio: 1,
+        borderRadius: 4,
     },
 });
 

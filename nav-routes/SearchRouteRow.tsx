@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import Touchable from "react-native-platform-touchable";
 import TransitIcon from "../common/TransitIcon";
 import SearchRouteData from "../types/SearchRouteData";
@@ -8,9 +8,10 @@ import SearchRouteData from "../types/SearchRouteData";
 interface RouteRowProps {
     searchRoute: SearchRouteData;
     onPress?: (selectedRoute: SearchRouteData) => void;
+    style?: StyleProp<ViewStyle>;
 }
 
-function SearchRouteRow({ searchRoute, onPress }: RouteRowProps) {
+function SearchRouteRow({ searchRoute, onPress, style }: RouteRowProps) {
     const { shortName, type, longName } = searchRoute;
 
     return (
@@ -18,7 +19,7 @@ function SearchRouteRow({ searchRoute, onPress }: RouteRowProps) {
             onPress={() => onPress && onPress(searchRoute)}
             accessibilityLabel="Add this route" >
             <View
-                style={styles.row}>
+                style={[styles.row, style]}>
                 <TransitIcon type={type} />
                 <Text style={styles.shortName} >
                     {shortName}
@@ -37,21 +38,18 @@ export default React.memo(SearchRouteRow);
 
 const styles = StyleSheet.create({
     row: {
+        flex: 1,
         flexDirection: "row",
-        padding: 5,
-        height: 52,
         alignItems: "center",
-        backgroundColor: "#eee",
     },
     shortName: {
+        marginLeft: 4,
         fontSize: 30,
         fontWeight: "bold",
-        marginLeft: 4,
     },
     longName: {
+        flex: 1,
+        marginHorizontal: 8,
         fontSize: 14,
-        marginLeft: 8,
-        flexGrow: 1,
-        flexShrink: 1,
     },
 });

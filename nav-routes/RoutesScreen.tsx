@@ -1,11 +1,11 @@
 import Constants from "expo-constants";
 import React, { useEffect, useState } from "react";
-import { Dimensions, FlatList, ScrollView, StyleSheet, View, Platform } from "react-native";
-import { SearchBar } from "react-native-elements";
+import { FlatList, Platform, ScrollView, StyleSheet, View } from "react-native";
 import RouteData from "../types/RouteData";
 import SearchRouteData from "../types/SearchRouteData";
 import TransitType from "../types/TransitType";
 import RouteRow from "./RouteRow";
+import SearchBar from "./SearchBar";
 import SearchRouteRow from "./SearchRouteRow";
 
 interface RoutesScreenProps {
@@ -29,24 +29,27 @@ export default function RoutesScreen({ activeRoutes, addRoute, removeRoute }: Ro
     return (
         <View style={styles.container} >
             <SearchBar
-                platform={searchPlatform}
                 style={styles.search}
-                placeholder="Track a new route"
-                onChangeText={setQuery}
-                value={query} />
+                onChangeText={setQuery} />
             {results.length > 0 &&
                 <FlatList
                     style={styles.list}
                     data={results}
                     renderItem={({ item }) => (
                         <SearchRouteRow
+                            style={styles.searchRouteRow}
                             searchRoute={item}
                             onPress={addRoute} />
                     )}
                     keyExtractor={r => r.shortName} />
             }
             <ScrollView style={[styles.active, { maxHeight: activeRoutesMaxHeight }]} >
-                {activeRoutes.map(r => <RouteRow key={r.shortName} route={r} />)}
+                {activeRoutes.map(r =>
+                    <RouteRow
+                        style={styles.routeRow}
+                        key={r.shortName}
+                        route={r} />
+                )}
             </ScrollView>
         </View>
     );
@@ -59,10 +62,17 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFFFFF",
     },
     search: {
-
+        paddingHorizontal: 8,
+    },
+    searchRouteRow: {
+        padding: 5,
+        backgroundColor: "#EEE",
     },
     list: {
         flexBasis: 0,
+    },
+    routeRow: {
+        padding: 5,
     },
     active: {
         flexGrow: 0,
