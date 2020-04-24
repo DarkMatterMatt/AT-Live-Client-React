@@ -4,7 +4,7 @@ import { StyleSheet, View, Dimensions, Platform, ImageURISource } from "react-na
 import { encode } from "base-64";
 import VehicleData from "../types/VehicleData";
 import TransitType from "../types/TransitType";
-import MarkerIcon from "../assets/MarkerIcon";
+import MarkerIcon from "../common/MarkerIcon";
 
 /**
  * Calculates a bezier blend curve

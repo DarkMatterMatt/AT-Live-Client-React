@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SlidersColorPicker } from 'react-native-color';
 import Touchable from "react-native-platform-touchable";
-import CrossIcon from "../assets/CrossIcon";
+import CrossIcon from "../common/CrossIcon";
 import TransitIcon from "../common/TransitIcon";
 import RouteData from "../types/RouteData";
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import BusIcon from "../assets/BusIcon";
-import FerryIcon from "../assets/FerryIcon";
-import RailIcon from "../assets/RailIcon";
+import BusIcon from "./BusIcon";
+import FerryIcon from "./FerryIcon";
+import RailIcon from "./RailIcon";
 import TransitType from "../types/TransitType";
 
 interface TransitIconProps {
