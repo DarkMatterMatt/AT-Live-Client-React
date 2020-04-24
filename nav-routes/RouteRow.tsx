@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Button, Image, StyleSheet, Text, View, ScrollView, Dimensions, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { SlidersColorPicker } from 'react-native-color';
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import BusIcon from "../assets/BusIcon";
-import TransitType from "../types/TransitType";
-import RailIcon from "../assets/RailIcon";
-import FerryIcon from "../assets/FerryIcon";
+import Touchable from "react-native-platform-touchable";
 import CrossIcon from "../assets/CrossIcon";
+import TransitIcon from "../common/TransitIcon";
 import RouteData from "../types/RouteData";
 
 const SUGGESTED_COLORS = [
@@ -19,18 +16,6 @@ const SUGGESTED_COLORS = [
     "#D30094",
 ];
 
-function getIcon(type: TransitType) {
-    switch (type) {
-        case "ferry":
-            return <FerryIcon height="100%" fill="#33f" />;
-        case "rail":
-            return <RailIcon height="100%" fill="#fc0" />;
-        case "bus":
-        default:
-            return <BusIcon height="100%" fill="#093" />;
-    }
-}
-
 // TODO: make setColor and remove required
 interface RouteRowProps {
     route: RouteData;
@@ -41,61 +26,65 @@ interface RouteRowProps {
 export default function RouteRow({ route, setColor, remove }: RouteRowProps) {
     const [pickrVisible, setPickrVisible] = useState(false);
 
-    const { shortName, color, type } = route;
+    const { shortName, color, type, longName, to, from } = route;
 
-    return (
-        <>
-            <View style={[styles.row, { borderColor: color }]}>
-                {getIcon(type)}
-                <Text
-                    style={styles.shortName}>
-                    {shortName}
-                </Text>
-                {/* TODO: add where the bus is going to/from */}
-                <TouchableOpacity
-                    onPress={() => setPickrVisible(true)}
-                    style={[styles.pickrBtn, { backgroundColor: color }]}
-                    accessibilityLabel="Change color" />
-                <TouchableOpacity
-                    onPress={() => remove && remove()}
-                    accessibilityLabel="Remove route" >
-                    <CrossIcon height="100%" />
-                </TouchableOpacity>
+    return (<>
+        <View style={styles.row}>
+            <TransitIcon type={type} />
+            <Text
+                style={styles.shortName}>
+                {shortName}
+            </Text>
+            <View style={{ flexGrow: 1 }}>
+                <Text style={styles.toFrom}>{to}</Text>
+                <Text style={styles.toFrom}>{from}</Text>
             </View>
-            <SlidersColorPicker
-                visible={pickrVisible}
-                color={color}
-                onCancel={() => setPickrVisible(false)}
-                returnMode="hex"
-                onOk={(colorHex: string) => setColor && setColor(colorHex)}
-                swatches={SUGGESTED_COLORS}
-                swatchesLabel="QUICK COLOURS"
-                okLabel="Done"
-                cancelLabel="Cancel"
-            />
-        </>
-    );
+            <Touchable
+                onPress={() => setPickrVisible(true)}
+                style={[styles.pickrBtn, { backgroundColor: color }]}
+                accessibilityLabel="Change color" >
+                <>{/* Touchable needs exactly one child */}</>
+            </Touchable>
+            <Touchable
+                onPress={() => remove && remove()}
+                accessibilityLabel="Remove route" >
+                <CrossIcon height="100%" />
+            </Touchable>
+        </View>
+        <SlidersColorPicker
+            visible={pickrVisible}
+            color={color}
+            onCancel={() => setPickrVisible(false)}
+            returnMode="hex"
+            onOk={(colorHex: string) => setColor && setColor(colorHex)}
+            swatches={SUGGESTED_COLORS}
+            swatchesLabel="QUICK COLOURS"
+            okLabel="Done"
+            cancelLabel="Cancel"
+        />
+    </>);
 }
 
 const styles = StyleSheet.create({
     row: {
         flexDirection: "row",
-        borderRadius: 15,
-        borderWidth: 3,
-        marginVertical: 10,
-        marginHorizontal: 20,
         padding: 5,
+        flexShrink: 1,
     },
     shortName: {
         fontSize: 30,
         fontWeight: "bold",
-        flexGrow: 1,
-        marginHorizontal: 4,
+        marginLeft: 4,
+    },
+    toFrom: {
+        fontSize: 14,
+        marginLeft: 8,
     },
     pickrBtn: {
-        borderRadius: 5,
+        borderRadius: 4,
         aspectRatio: 1,
+        marginHorizontal: 3,
         height: "100%",
-        marginHorizontal: 4,
     },
 });
+

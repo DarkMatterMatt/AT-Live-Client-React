@@ -1,12 +1,14 @@
-import VehicleData from "./VehicleData";
-import TransitType from "./TransitType";
 import { LatLng } from "react-native-maps";
+import TransitType from "./TransitType";
+import VehicleData from "./VehicleData";
 
 export default interface RouteData {
     shortName: string;
-    active: boolean;
+    longName: string;
     color: string;
     vehicles: VehicleData[];
     type: TransitType;
     polylines: [LatLng[], LatLng[]?];
+    to: string;
+    from: string;
 }
