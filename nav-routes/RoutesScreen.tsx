@@ -1,9 +1,9 @@
 import Constants from "expo-constants";
 import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Keyboard, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { loadSearchData } from "../common/api";
 import RouteData from "../types/RouteData";
 import SearchRouteData from "../types/SearchRouteData";
-import TransitType from "../types/TransitType";
 import RouteRow from "./RouteRow";
 import SearchBar from "./SearchBar";
 import SearchRouteRow from "./SearchRouteRow";
@@ -84,49 +84,6 @@ const styles = StyleSheet.create({
         flexGrow: 0,
     }
 });
-
-interface RoutesResponse {
-    message: string;
-    routes: Record<string, {
-        shortName: string;
-        longName: string;
-        type: TransitType;
-    }>;
-}
-
-/**
- * loadSearchData fetches data to be displayed in the search list
- */
-async function loadSearchData(): Promise<SearchRouteData[]> {
-    try {
-        // TODO: abstract this
-        const { routes } = await fetch("https://mattm.win/atlive/api/v1/routes?fetch=shortName,longName,type").then(r => r.json()) as RoutesResponse;
-        const regexWord = /[a-z]+/g;
-
-        return Object.entries(routes).map(([shortName, { longName, type }]) => {
-            const longNameLower = longName.toLowerCase();
-            const longNameWords = longNameLower.match(regexWord)?.filter(w => !["to", "via", "and"].includes(w)) ?? [];
-
-            // remove everything after "via", remove all parenthesized text, split on the word "to"
-            const [to, from] = longName.replace(/ via .*/i, "").replace(/ *\([^)]*\)/g, "").split(" to ");
-
-            return {
-                shortName,
-                shortNameLower: shortName.toLowerCase(),
-                longName,
-                longNameLower,
-                longNameWords,
-                type,
-                to,
-                from,
-            }
-        });
-    }
-    catch (err) {
-        console.error(err);
-        return [];
-    }
-}
 
 /**
  * search filters the provided search data by a search/query
