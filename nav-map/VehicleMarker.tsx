@@ -45,6 +45,7 @@ export default function VehicleMarker({ vehicle, zIndex, type, color }: VehicleM
     // TODO: allow changing between marker icons and bus/rail/ferry icons
     return (
         <Marker
+            tracksViewChanges={false}
             zIndex={zIndex}
             identifier={vehicle.id}
             coordinate={vehicle.position} >

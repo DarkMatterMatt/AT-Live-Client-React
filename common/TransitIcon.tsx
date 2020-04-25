@@ -10,7 +10,7 @@ interface TransitIconProps {
     fill?: string;
 }
 
-export default function TransitIcon({ type, height = "100%", fill }: TransitIconProps) {
+function TransitIcon({ type, height = "100%", fill }: TransitIconProps) {
     switch (type) {
         case "ferry":
             return <FerryIcon height={height} fill={fill ?? "#33f"} />;
@@ -21,3 +21,5 @@ export default function TransitIcon({ type, height = "100%", fill }: TransitIcon
             return <BusIcon height={height} fill={fill ?? "#093"} />;
     }
 }
+
+export default React.memo(TransitIcon);

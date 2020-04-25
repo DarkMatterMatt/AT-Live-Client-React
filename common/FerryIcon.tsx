@@ -8,7 +8,7 @@ interface FerryIconProps {
     fill?: string;
 }
 
-export default function FerryIcon({ height, width, fill = "#000" }: FerryIconProps) {
+function FerryIcon({ height, width, fill = "#000" }: FerryIconProps) {
     return (
         <View style={{ aspectRatio: 1, height, width }}>
             <Svg height="100%" width="100%" viewBox="0 0 24 24">
@@ -18,3 +18,5 @@ export default function FerryIcon({ height, width, fill = "#000" }: FerryIconPro
         </View>
     );
 }
+
+export default React.memo(FerryIcon);

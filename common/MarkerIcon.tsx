@@ -13,7 +13,7 @@ interface MarkerIconProps {
     dotOpacity?: number;
 }
 
-export default function MarkerIcon({ height, width, fill, opacity, borderColor, borderOpacity, dotFill, dotOpacity }: MarkerIconProps) {
+function MarkerIcon({ height, width, fill, opacity, borderColor, borderOpacity, dotFill, dotOpacity }: MarkerIconProps) {
     fill    = fill ?? "#000";
     opacity = opacity ?? 1;
     dotFill    = dotFill ?? "#FFF";
@@ -30,3 +30,5 @@ export default function MarkerIcon({ height, width, fill, opacity, borderColor, 
         </View>
     );
 }
+
+export default React.memo(MarkerIcon);

@@ -8,7 +8,7 @@ interface CrossIconProps {
     fill?: string;
 }
 
-export default function CrossIcon({ height, width, fill = "#000" }: CrossIconProps) {
+function CrossIcon({ height, width, fill = "#000" }: CrossIconProps) {
     return (
         <View style={{ aspectRatio: 1, height, width }}>
             <Svg height="100%" width="100%" viewBox="0 0 24 24">
@@ -18,3 +18,5 @@ export default function CrossIcon({ height, width, fill = "#000" }: CrossIconPro
         </View>
     );
 }
+
+export default React.memo(CrossIcon);

@@ -8,7 +8,7 @@ interface SearchIconProps {
     fill?: string;
 }
 
-export default function SearchIcon({ height, width, fill = "#000" }: SearchIconProps) {
+function SearchIcon({ height, width, fill = "#000" }: SearchIconProps) {
     return (
         <View style={{ aspectRatio: 1, height, width }}>
             <Svg height="100%" width="100%" viewBox="0 0 24 24">
@@ -18,3 +18,5 @@ export default function SearchIcon({ height, width, fill = "#000" }: SearchIconP
         </View>
     );
 }
+
+export default React.memo(SearchIcon);
