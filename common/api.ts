@@ -3,29 +3,20 @@ import RouteData from "../types/RouteData";
 import SearchRouteData from "../types/SearchRouteData";
 import TransitType from "../types/TransitType";
 import { API_URL } from "../common/constants";
-
-interface RoutesResponseLatLng {
-    lat: number;
-    lng: number;
-}
-
-interface RoutesResponseVehicle {
-    position: RoutesResponseLatLng
-    vehicleId: string;
-    lastUpdatedUnix: number;
-    directionId: 0 | 1;
-}
+import ApiResponseLatLng from "../types/ApiResponseLatLng";
+import ApiResponseVehicle from "../types/ApiResponseVehicle";
+import VehicleData from "../types/VehicleData";
 
 interface RoutesResponse {
     agencyId: string;
     longName: string;
     longNames: string[];
-    polylines: [RoutesResponseLatLng[], RoutesResponseLatLng[]?];
+    polylines: [ApiResponseLatLng[], ApiResponseLatLng[]?];
     routeIds: string[];
     shapeIds: string[];
     shortName: string;
     type: TransitType;
-    vehicles: Record<string, RoutesResponseVehicle>;
+    vehicles: Record<string, ApiResponseVehicle>;
 }
 
 interface RoutesFullResponse {
@@ -34,11 +25,20 @@ interface RoutesFullResponse {
     routes: Record<string, RoutesResponse>;
 }
 
-function RoutesResponseLatLng2LatLng(position: RoutesResponseLatLng): LatLng {
+export function apiResponseLatLng2LatLng(position: ApiResponseLatLng): LatLng {
     return {
         latitude: position.lat,
         longitude: position.lng,
     };
+}
+
+export function apiResponseVehicle2VehicleData(vehicle: ApiResponseVehicle): VehicleData {
+    return {
+        id: vehicle.vehicleId,
+        timestamp: vehicle.lastUpdatedUnix,
+        direction: vehicle.directionId,
+        position: apiResponseLatLng2LatLng(vehicle.position),
+    }
 }
 
 type QueryRoutesInfo = "shortName" | "longName" | "longNames" | "routeIds" | "shapeIds" | "vehicles" | "type" | "agencyId" | "polylines";
@@ -132,16 +132,11 @@ export async function loadRouteData(searchRoute: SearchRouteData): Promise<Route
 
     const [{ vehicles, polylines }] = routes;
 
-    const newVehicles = Object.values(vehicles).map(v => ({
-        id: v.vehicleId,
-        timestamp: v.lastUpdatedUnix,
-        direction: v.directionId,
-        position: RoutesResponseLatLng2LatLng(v.position),
-    }));
+    const newVehicles = Object.values(vehicles).map(apiResponseVehicle2VehicleData);
 
     const newPolylines: [LatLng[], LatLng[]?] = [
-        polylines[0].map(RoutesResponseLatLng2LatLng),
-        polylines[1]?.map(RoutesResponseLatLng2LatLng),
+        polylines[0].map(apiResponseLatLng2LatLng),
+        polylines[1]?.map(apiResponseLatLng2LatLng),
     ];
 
     return {
@@ -154,4 +149,23 @@ export async function loadRouteData(searchRoute: SearchRouteData): Promise<Route
         vehicles: newVehicles,
         polylines: newPolylines,
     };
+}
+
+/**
+ * loadVehicles fetches a snapshot of the currently active vehicles for the specified routes
+ * @param shortNames the short names of the routes to load vehicles for
+ */
+export async function loadVehicles(shortNames: string[]): Promise<Record<string, VehicleData[]> | null> {
+    const routes = await queryRoutes({ shortNames, data: "vehicles" });
+    if (routes === null) {
+        // console.error called in queryRoutes
+        return null;
+    }
+
+    const result: Record<string, VehicleData[]> = {};
+    routes.forEach(r => {
+        result[r.shortName] = Object.values(r.vehicles).map(apiResponseVehicle2VehicleData);
+    });
+    
+    return result;
 }

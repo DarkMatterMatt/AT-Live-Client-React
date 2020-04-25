@@ -10,6 +10,8 @@ import RoutesScreen from "./nav-routes/RoutesScreen";
 import SettingsScreen from "./nav-settings/SettingsScreen";
 import RouteData from "./types/RouteData";
 import SearchRouteData from "./types/SearchRouteData";
+import WebSocketApi from "./common/WebSocketApi";
+import VehicleData from "./types/VehicleData";
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -24,6 +26,21 @@ export default class App extends React.Component<AppProps, AppState> {
     state: AppState = {
         activeRoutes: [],
         inactiveRoutes: [],
+    }
+
+    wsApi: WebSocketApi;
+
+    constructor(props: AppProps) {
+        super(props);
+
+        this.wsApi = new WebSocketApi({
+            onVehicleUpdate: this.onVehicleUpdate,
+            subscriptions: this.state.activeRoutes.map(r => r.shortName),
+        });
+    }
+
+    componentWillUnmount = () => {
+        this.wsApi.close();
     }
 
     render = () => {
@@ -82,6 +99,7 @@ export default class App extends React.Component<AppProps, AppState> {
             return;
         }
         this.setActiveRoutes([...this.state.activeRoutes, newR]);
+        this.wsApi.subscribe(newR.shortName);
     }
 
     updateRoute = (oldR: RouteData, newR: RouteData) => {
@@ -90,6 +108,19 @@ export default class App extends React.Component<AppProps, AppState> {
 
     removeRoute = (oldR: RouteData) => {
         this.setActiveRoutes(this.state.activeRoutes.filter(r => r !== oldR));
+        this.wsApi.unsubscribe(oldR.shortName);
+    }
+
+    onVehicleUpdate = (routeShortName: string, newV: VehicleData) => {
+        const oldR = this.state.activeRoutes.find(r => r.shortName === routeShortName);
+        if (oldR === undefined) {
+            return;
+        }
+        const newR: RouteData = {
+            ...oldR,
+            vehicles: [...oldR.vehicles.filter(v => v.id !== newV.id), newV],
+        };
+        this.updateRoute(oldR, newR);
     }
 }
 
