@@ -4,10 +4,9 @@ import Touchable from "react-native-platform-touchable";
 import TransitIcon from "../common/TransitIcon";
 import SearchRouteData from "../types/SearchRouteData";
 
-// TODO: make onPress required
 interface RouteRowProps {
     searchRoute: SearchRouteData;
-    onPress?: (selectedRoute: SearchRouteData) => void;
+    onPress: () => void;
     style?: StyleProp<ViewStyle>;
 }
 
@@ -16,7 +15,7 @@ function SearchRouteRow({ searchRoute, onPress, style }: RouteRowProps) {
 
     return (
         <Touchable
-            onPress={() => onPress && onPress(searchRoute)}
+            onPress={onPress}
             accessibilityLabel="Add this route" >
             <View
                 style={[styles.row, style]}>

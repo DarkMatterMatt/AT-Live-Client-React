@@ -5,33 +5,66 @@ import CrossIcon from "../common/CrossIcon";
 import SearchIcon from "../common/SearchIcon";
 
 interface SearchBarProps {
-    onChangeText?: (text: string) => void;
+    onChangeText: (text: string) => void;
     style?: StyleProp<ViewStyle>;
 }
 
-export default function SearchBar({ onChangeText, style }: SearchBarProps) {
-    const [query, setQuery] = useState("");
-    const textInputRef = useRef<TextInput>(null);
+interface SearchBarState {
+    query: string;
+}
 
-    return (
-        <View style={[styles.container, style]}>
-            <Touchable onPress={() => textInputRef.current?.focus()}>
-                <SearchIcon height="70%" fill="#888" />
-            </Touchable>
-            <TextInput
-                style={styles.search}
-                ref={textInputRef}
-                onChangeText={t => { setQuery(t); onChangeText && onChangeText(t) }}
-                value={query}
-                placeholder="Track a new route" />
-            {query !== "" &&
-                <Touchable onPress={() => { setQuery(""); onChangeText && onChangeText("") }}>
-                    <CrossIcon height="70%" fill="#888" />
+export default class SearchBar extends React.Component<SearchBarProps, SearchBarState> {
+    state: SearchBarState = {
+        query: "",
+    }
+
+    inputRef: TextInput | null = null;
+
+    onChangeText: (text: string) => void;
+
+    constructor(props: SearchBarProps) {
+        super(props);
+        const { onChangeText } = props;
+        this.onChangeText = onChangeText;
+    }
+
+    render = () => {
+        const { onChangeText, style } = this.props;
+        const { query } = this.state;
+
+        return (
+            <View style={[styles.container, style]}>
+                <Touchable onPress={() => this.inputRef?.focus()}>
+                    <SearchIcon height="70%" fill="#888" />
                 </Touchable>
-            }
+                <TextInput
+                    style={styles.search}
+                    ref={ref => this.inputRef = ref}
+                    onChangeText={this.setQuery}
+                    value={query}
+                    placeholder="Track a new route" />
+                {query !== "" &&
+                    <Touchable onPress={this.clear}>
+                        <CrossIcon height="70%" fill="#888" />
+                    </Touchable>
+                }
 
-        </View>
-    );
+            </View>
+        );
+    }
+
+    setQuery = (text: string) => {
+        this.setState({ query: text });
+        this.onChangeText(text);
+    }
+
+    clear = () => {
+        this.setQuery("");
+    }
+
+    getInputRef = () => {
+        return this.inputRef;
+    }
 }
 
 const styles = StyleSheet.create({

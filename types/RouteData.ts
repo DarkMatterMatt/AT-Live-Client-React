@@ -10,5 +10,5 @@ export default interface RouteData {
     type: TransitType;
     polylines: [LatLng[], LatLng[]?];
     to: string;
-    from: string;
+    from?: string;
 }

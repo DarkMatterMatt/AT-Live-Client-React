@@ -1,6 +1,6 @@
 import Constants from "expo-constants";
-import React, { useEffect, useState } from "react";
-import { FlatList, Platform, ScrollView, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { FlatList, Keyboard, Platform, ScrollView, StyleSheet, View } from "react-native";
 import RouteData from "../types/RouteData";
 import SearchRouteData from "../types/SearchRouteData";
 import TransitType from "../types/TransitType";
@@ -10,13 +10,15 @@ import SearchRouteRow from "./SearchRouteRow";
 
 interface RoutesScreenProps {
     activeRoutes: RouteData[];
-    addRoute?: (route: SearchRouteData) => void;
-    removeRoute?: (route: RouteData) => void;
+    addRoute: (route: SearchRouteData) => void;
+    removeRoute: (route: RouteData) => void;
+    updateRoute: (oldRoute: RouteData, newRoute: RouteData) => void;
 }
 
-export default function RoutesScreen({ activeRoutes, addRoute, removeRoute }: RoutesScreenProps) {
+export default function RoutesScreen({ activeRoutes, addRoute, removeRoute, updateRoute }: RoutesScreenProps) {
     const [searchData, setSearchData] = useState<SearchRouteData[]>([]);
     const [query, setQuery] = useState("");
+    const searchBarRef = useRef<SearchBar>(null);
 
     useEffect(() => {
         (async () => setSearchData(await loadSearchData()))();
@@ -29,17 +31,19 @@ export default function RoutesScreen({ activeRoutes, addRoute, removeRoute }: Ro
     return (
         <View style={styles.container} >
             <SearchBar
+                ref={searchBarRef}
                 style={styles.search}
                 onChangeText={setQuery} />
             {results.length > 0 &&
                 <FlatList
                     style={styles.list}
                     data={results}
+                    keyboardShouldPersistTaps="handled"
                     renderItem={({ item }) => (
                         <SearchRouteRow
                             style={styles.searchRouteRow}
                             searchRoute={item}
-                            onPress={addRoute} />
+                            onPress={() => { Keyboard.dismiss(); searchBarRef.current?.clear(); addRoute(item) }} />
                     )}
                     keyExtractor={r => r.shortName} />
             }
@@ -48,7 +52,9 @@ export default function RoutesScreen({ activeRoutes, addRoute, removeRoute }: Ro
                     <RouteRow
                         style={styles.routeRow}
                         key={r.shortName}
-                        route={r} />
+                        route={r}
+                        removeRoute={removeRoute}
+                        updateRoute={updateRoute} />
                 )}
             </ScrollView>
         </View>

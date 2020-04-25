@@ -16,15 +16,14 @@ const SUGGESTED_COLORS = [
     "#D30094",
 ];
 
-// TODO: make setColor and remove required
 interface RouteRowProps {
     route: RouteData;
-    setColor?: (newColor: string) => void;
-    remove?: () => void;
+    updateRoute: (oldRoute: RouteData, newRoute: RouteData) => void;
+    removeRoute: (route: RouteData) => void;
     style?: StyleProp<ViewStyle>;
 }
 
-export default function RouteRow({ route, setColor, remove, style }: RouteRowProps) {
+export default function RouteRow({ route, updateRoute, removeRoute, style }: RouteRowProps) {
     const [pickrVisible, setPickrVisible] = useState(false);
 
     const { shortName, color, type, longName, to, from } = route;
@@ -47,7 +46,7 @@ export default function RouteRow({ route, setColor, remove, style }: RouteRowPro
                 <>{/* Touchable needs exactly one child */}</>
             </Touchable>
             <Touchable
-                onPress={() => remove && remove()}
+                onPress={() => removeRoute(route)}
                 accessibilityLabel="Remove route" >
                 <CrossIcon height="100%" />
             </Touchable>
@@ -57,7 +56,7 @@ export default function RouteRow({ route, setColor, remove, style }: RouteRowPro
             color={color}
             onCancel={() => setPickrVisible(false)}
             returnMode="hex"
-            onOk={(colorHex: string) => setColor && setColor(colorHex)}
+            onOk={(color: string) => { setPickrVisible(false); updateRoute(route, { ...route, color }) }}
             swatches={SUGGESTED_COLORS}
             swatchesLabel="QUICK COLOURS"
             okLabel="Done"
