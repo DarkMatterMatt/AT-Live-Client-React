@@ -1,16 +1,17 @@
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { AsyncStorage, StyleSheet } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { loadRouteData } from "./common/api";
+import { ASTORAGE_KEY_ACTIVE_ROUTES, ASTORAGE_KEY_INACTIVE_ROUTES } from "./common/constants";
+import WebSocketApi from "./common/WebSocketApi";
 import MapScreen from "./nav-map/MapScreen";
 import RoutesScreen from "./nav-routes/RoutesScreen";
 import SettingsScreen from "./nav-settings/SettingsScreen";
 import RouteData from "./types/RouteData";
 import SearchRouteData from "./types/SearchRouteData";
-import WebSocketApi from "./common/WebSocketApi";
 import VehicleData from "./types/VehicleData";
 
 const Tab = createMaterialBottomTabNavigator();
@@ -37,6 +38,11 @@ export default class App extends React.Component<AppProps, AppState> {
             onVehicleUpdate: this.onVehicleUpdate,
             subscriptions: this.state.activeRoutes.map(r => r.shortName),
         });
+
+        this.loadPersistant(ASTORAGE_KEY_ACTIVE_ROUTES, []).then(data => {
+            (data as RouteData[]).forEach(r => this.addRoute(r, r.color));
+        });
+        this.loadPersistant(ASTORAGE_KEY_INACTIVE_ROUTES, []).then(data => this.setInactiveRoutes(data as RouteData[]));
     }
 
     componentWillUnmount = () => {
@@ -84,20 +90,57 @@ export default class App extends React.Component<AppProps, AppState> {
         );
     }
 
+    savePersistant = async (key: string, obj: Record<string, any>) => {
+        try {
+            await AsyncStorage.setItem(key, JSON.stringify(obj));
+        }
+        catch (e) {
+            console.error("Failed storing object to AsyncStorage", key, obj, e);
+        }
+    }
+
+    loadPersistant = async (key: string, defaultValue: any = null) => {
+        try {
+            const value = await AsyncStorage.getItem(key);
+            if (value === null) {
+                return defaultValue;
+            }
+            return JSON.parse(value);
+        } catch (e) {
+            console.error("Failed loading object from AsyncStorage", key, e);
+            return defaultValue;
+        }
+    }
+
     setActiveRoutes = (activeRoutes: RouteData[]) => {
         this.setState({ activeRoutes });
+        this.savePersistant(ASTORAGE_KEY_ACTIVE_ROUTES, activeRoutes);
     }
 
     setInactiveRoutes = (inactiveRoutes: RouteData[]) => {
         this.setState({ inactiveRoutes });
+        this.savePersistant(ASTORAGE_KEY_INACTIVE_ROUTES, inactiveRoutes);
     }
 
-    addRoute = async (newSR: SearchRouteData) => {
+    addRoute = async (newSR: SearchRouteData | RouteData, colorOverride?: string) => {
         const newR = await loadRouteData(newSR);
         if (newR === null) {
             console.error("Failed loading data for searchRoute", newSR);
             return;
         }
+
+        // copy previously stored color and remove from inactive routes
+        const prevR = this.state.inactiveRoutes.find(r => r.shortName === newR.shortName);
+        if (prevR !== undefined) {
+            newR.color = prevR.color;
+            this.setInactiveRoutes(this.state.inactiveRoutes.filter(r => r !== prevR));
+        }
+
+        // used when reloading data from AsyncStorage
+        if (colorOverride !== undefined) {
+            newR.color = colorOverride;
+        }
+
         this.setActiveRoutes([...this.state.activeRoutes, newR]);
         this.wsApi.subscribe(newR.shortName);
     }
@@ -108,6 +151,7 @@ export default class App extends React.Component<AppProps, AppState> {
 
     removeRoute = (oldR: RouteData) => {
         this.setActiveRoutes(this.state.activeRoutes.filter(r => r !== oldR));
+        this.setInactiveRoutes([...this.state.inactiveRoutes, oldR]);
         this.wsApi.unsubscribe(oldR.shortName);
     }
 

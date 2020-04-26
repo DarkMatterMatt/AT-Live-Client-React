@@ -114,9 +114,9 @@ export async function loadSearchData(): Promise<SearchRouteData[]> {
 
 /**
  * loadRouteData fetches additional info to convert SearchRouteData into RouteData
- * @param searchRoute the search route to fetch additional data for
+ * @param searchRoute the search route to fetch additional data for, or the route to reload data for
  */
-export async function loadRouteData(searchRoute: SearchRouteData): Promise<RouteData | null> {
+export async function loadRouteData(searchRoute: SearchRouteData | RouteData): Promise<RouteData | null> {
     const { shortName, longName, type, to, from } = searchRoute;
 
     const routes = await queryRoutes({ shortName, data: ["vehicles", "polylines"] });

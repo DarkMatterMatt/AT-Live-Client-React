@@ -48,6 +48,15 @@ export default class WebSocketApi {
 
         this.ws.addEventListener("open", ev => {
             console.log("WebSocket connected");
+
+            // resubscribe to routes
+            this.subscribed.forEach(shortName => {
+                this.ws?.send(JSON.stringify({
+                    route: "subscribe",
+                    shortName,
+                }));
+            });
+
             // send a heartbeat every 5 seconds
             this.wsHeartbeatInterval = setInterval(() => {
                 this.ws?.send(JSON.stringify({ route: "ping" }));
@@ -59,6 +68,7 @@ export default class WebSocketApi {
                 console.warn("Reconnecting WebSocket", ev);
                 setTimeout(this.connect, 500);
             }
+            this.ws = null;
             clearInterval(this.wsHeartbeatInterval);
         });
 
@@ -77,10 +87,12 @@ export default class WebSocketApi {
         }
         this.subscribed.push(shortName);
 
-        this.ws?.send(JSON.stringify({
-            route: "subscribe",
-            shortName,
-        }));
+        if (this.ws?.readyState === WebSocket.OPEN) {
+            this.ws?.send(JSON.stringify({
+                route: "subscribe",
+                shortName,
+            }));
+        }
     }
 
     unsubscribe = (shortName: string) => {
@@ -89,13 +101,15 @@ export default class WebSocketApi {
         }
         this.subscribed.splice(this.subscribed.indexOf(shortName), 1);
 
-        this.ws?.send(JSON.stringify({
-            route: "unsubscribe",
-            shortName,
-        }));
+        if (this.ws?.readyState === WebSocket.OPEN) {
+            this.ws?.send(JSON.stringify({
+                route: "unsubscribe",
+                shortName,
+            }));
+        }
     }
 
-    close = () =>{
+    close = () => {
         this.ws?.close(WS_CLOSE_NO_RECONNECT, "Close method called on WebSocketApi");
     }
 }
